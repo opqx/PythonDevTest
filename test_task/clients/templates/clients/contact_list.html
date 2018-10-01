@@ -1,0 +1,32 @@
+<p>
+  <a href="{% url "create" %}">create</a>
+</p>
+<p>
+  <ul>
+	{% for contact in object_list %}
+	    <li>
+	      {{ contact.id }}
+	      <a href="{% url "view" contact.id %}">view</a>
+	      <a href="{% url "update" contact.id %}">update</a>
+	      <a href="{% url "delete" contact.id %}">delete</a>
+	      {{ contact.name }}
+	      {{ contact.company }}
+	      {{ contact.email }}
+	      {{ contact.phone }}
+	      {{ contact.interest }}
+	    </li>
+	{% endfor %}
+  <ul>
+</p>
+
+<p>
+{% if is_paginated %}
+    {% if page_obj.has_previous %}
+	<a href="?page={{ page_obj.previous_page_number }}">назад</a>
+    {% endif %}
+	страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}.
+    {% if page_obj.has_next %}
+	<a href="?page={{ page_obj.next_page_number }}">вперед</a>
+    {% endif %}
+{% endif %}
+</p>
