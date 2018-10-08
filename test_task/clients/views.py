@@ -4,6 +4,30 @@ from clients.models import Contact
 from clients.forms import ContactForm
 from django.urls import reverse_lazy
 
+from django.shortcuts import render
+import requests
+from lxml import html
+from io import StringIO
+
+
+def about_us(request):
+    url = "https://breffi.ru/ru/about"
+    r = requests.get(url, verify=False)
+    root = html.parse(
+        StringIO(r.text)
+    ).getroot()
+    elem = root.cssselect('div.worth > div.content-section__layout > div.content-section__item')
+    title = root.cssselect('div.worth > div.content-section__layout > div.content-section__title')
+
+    resutl = []
+    for i in elem[:5]:
+        resutl.append( (i[0].text, i[1].text, i[2].text_content()) )
+    
+    return render(request, 'clients/about_us.html', {
+        'title': title[0].text,
+        'resutl': resutl,
+    })
+
 
 class List(ListView):
     model = Contact

@@ -1,0 +1,17 @@
+<h1>
+  {{ title }}
+</h1>
+<ul>
+{% for i in resutl %}
+<li>
+  <p>
+  {{ i.0 }}
+  {{ i.1 }}
+  </p>
+  <p>
+    {{ i.2 }}
+  </p>
+  <hr>
+</li>
+{% endfor %}
+</ul>
