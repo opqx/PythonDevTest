@@ -81,9 +81,9 @@ class ContactAdmin(admin.ModelAdmin):
     actions = ["export_to_csv", "export_to_json"]
 
     def export_to_csv(self, request, queryset):
-
+        # from pudb import set_trace; set_trace()
         meta = self.model._meta
-        field_names = [field.name for field in meta.fields][1:5]
+        field_names = [field.name for field in meta.fields][2:6]
 
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename={}.csv'.format(meta)
@@ -91,7 +91,7 @@ class ContactAdmin(admin.ModelAdmin):
 
         writer.writerow(field_names)
         for obj in queryset:
-            row = writer.writerow([ getattr(obj, field) for field in field_names[1:5] ])
+            row = writer.writerow([ getattr(obj, field) for field in field_names ])
 
         return response
 
