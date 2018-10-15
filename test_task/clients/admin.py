@@ -1,6 +1,12 @@
 from django.contrib import admin
 from .models import Contact, Companies, Country, Region, City, Street, Building, Office
 
+import csv
+from django.http import HttpResponse
+
+from clients.serializers import ContactSerializer
+from rest_framework.renderers import JSONRenderer
+
 
 class CountryInline(admin.StackedInline):
     model = Country
@@ -72,7 +78,41 @@ class ContactAdmin(admin.ModelAdmin):
     list_display = ('name', 'email', 'phone', 'interest')
     search_fields = ['name', 'email', 'phone', 'interest']
 
+    actions = ["export_to_csv", "export_to_json"]
 
+    def export_to_csv(self, request, queryset):
+
+        meta = self.model._meta
+        field_names = [field.name for field in meta.fields][1:5]
+
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename={}.csv'.format(meta)
+        writer = csv.writer(response)
+
+        writer.writerow(field_names)
+        for obj in queryset:
+            row = writer.writerow([ getattr(obj, field) for field in field_names[1:5] ])
+
+        return response
+
+    export_to_csv.short_description = "экспорт в csv"
+
+    def export_to_json(self, request, queryset):
+
+        meta = self.model._meta
+
+        response = HttpResponse(content_type='application/json')
+        response['Content-Disposition'] = 'attachment; filename={}.json'.format(meta)
+
+        serializer = ContactSerializer(queryset, many=True)
+        content = JSONRenderer().render(serializer.data)
+        response.write(content)
+
+        return response
+
+    export_to_json.short_description = "экспорт в json"
+
+    
 admin.site.register(Companies, CompaniesAdmin)
 admin.site.register(Contact, ContactAdmin)
 
