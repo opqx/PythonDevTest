@@ -28,18 +28,49 @@ class OfficeInline(admin.StackedInline):
 
 
 class CompaniesAdmin(admin.ModelAdmin):
-    list_display = ['company', 'new_col', ]
+    list_per_page = 10
+    list_display = ['company', 'contact', 'country', 'region', 'city', 'street', 'building', 'office']
+    search_fields = ['company', 'contact__name', 'country__name', 'region__name', 'city__name', 'street__name', 'building__name', 'office__name']
+
     
-    def new_col(self, obj):
-        return "add_new_col"
+    def contact(self, obj):
+        return Contact.objects.filter(company=obj.id).first()
+
+
+    def country(self, obj):
+        return Country.objects.filter(company=obj.id).first()
+
+
+    def region(self, obj):
+        return Region.objects.filter(company=obj.id).first()
+
+
+    def city(self, obj):
+        return City.objects.filter(company=obj.id).first()
+
+
+    def street(self, obj):
+        return Street.objects.filter(company=obj.id).first()
+
+
+    def building(self, obj):
+        return Building.objects.filter(company=obj.id).first()
+
+
+    def office(self, obj):
+        return Office.objects.filter(company=obj.id).first()
+
+    
+    def contact(self, obj):
+        return Contact.objects.filter(company=obj.id).first()
 
     inlines = [CountryInline, RegionInline, CityInline, StreetInline, BuildingInline, OfficeInline]
 
 
 class ContactAdmin(admin.ModelAdmin):
     list_per_page = 10
-    list_display = ('name', 'company', 'email', 'phone', 'interest')
-    search_fields = ['name', 'company', 'email', 'phone', 'interest']
+    list_display = ('name', 'email', 'phone', 'interest')
+    search_fields = ['name', 'email', 'phone', 'interest']
 
 
 admin.site.register(Companies, CompaniesAdmin)

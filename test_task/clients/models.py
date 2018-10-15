@@ -3,13 +3,15 @@ from django.urls import reverse
 
 
 class Companies(models.Model):
-    company = models.CharField(max_length=200) 
+    company = models.CharField(max_length=200, unique=True) 
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
     
     def __str__(self):
         return self.company
 
 class Contact(models.Model):
-    company = models.ForeignKey(Companies, on_delete=models.CASCADE)
+    company = models.ForeignKey(Companies, on_delete=models.CASCADE, blank=True, null=True)
     name = models.CharField(max_length=200)
     email = models.CharField(max_length=200)
     phone = models.CharField(max_length=200)
@@ -26,7 +28,7 @@ class Contact(models.Model):
 
 
 class Country(models.Model):
-    company = models.ForeignKey(Companies, on_delete=models.CASCADE)
+    company = models.ForeignKey(Companies, on_delete=models.CASCADE, blank=True, null=True)
     name = models.CharField("Country", max_length=50)
 
     
@@ -34,8 +36,8 @@ class Country(models.Model):
         return self.name    
 
 class Region(models.Model):
-    company = models.ForeignKey(Companies, on_delete=models.CASCADE)
-    country = models.ForeignKey(Country, on_delete=models.CASCADE)
+    company = models.ForeignKey(Companies, on_delete=models.CASCADE, blank=True, null=True)
+    country = models.ForeignKey(Country, on_delete=models.CASCADE, blank=True, null=True)
     name = models.CharField("Region", max_length=50)
 
     
@@ -44,8 +46,8 @@ class Region(models.Model):
     
 
 class City(models.Model):
-    company = models.ForeignKey(Companies, on_delete=models.CASCADE)
-    region = models.ForeignKey(Region, on_delete=models.CASCADE)
+    company = models.ForeignKey(Companies, on_delete=models.CASCADE, blank=True, null=True)
+    region = models.ForeignKey(Region, on_delete=models.CASCADE, blank=True, null=True)
     name = models.CharField("City", max_length=50)
 
     
@@ -54,8 +56,8 @@ class City(models.Model):
     
 
 class Street(models.Model):
-    company = models.ForeignKey(Companies, on_delete=models.CASCADE)
-    city = models.ForeignKey(City, on_delete=models.CASCADE)
+    company = models.ForeignKey(Companies, on_delete=models.CASCADE, blank=True, null=True)
+    city = models.ForeignKey(City, on_delete=models.CASCADE, blank=True, null=True)
     name = models.CharField("Street", max_length=50)
 
     
@@ -64,8 +66,8 @@ class Street(models.Model):
     
 
 class Building(models.Model):
-    company = models.ForeignKey(Companies, on_delete=models.CASCADE)
-    street = models.ForeignKey(Street, on_delete=models.CASCADE)
+    company = models.ForeignKey(Companies, on_delete=models.CASCADE, blank=True, null=True)
+    street = models.ForeignKey(Street, on_delete=models.CASCADE, blank=True, null=True)
     name = models.CharField("Building", max_length=50)
 
     
@@ -74,8 +76,8 @@ class Building(models.Model):
     
 
 class Office(models.Model):
-    company = models.ForeignKey(Companies, on_delete=models.CASCADE)
-    building = models.ForeignKey(Building, on_delete=models.CASCADE)
+    company = models.ForeignKey(Companies, on_delete=models.CASCADE, blank=True, null=True)
+    building = models.ForeignKey(Building, on_delete=models.CASCADE, blank=True, null=True)
     name = models.CharField("Office", max_length=50)
 
     
