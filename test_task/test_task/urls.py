@@ -17,8 +17,10 @@ from django.contrib import admin
 from django.urls import path, include
 #from clients import urls as clients_urls
 
+from clients.viewsets import api_router
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('clients.urls') ),
+    path('api/v1/', include(api_router.urls)),
 ]
