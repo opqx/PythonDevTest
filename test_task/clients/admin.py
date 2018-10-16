@@ -15,6 +15,7 @@ from clients.forms import ContactForm, CompaniesForm, CityForm, StreetForm
 import json
 
 import requests
+from django.contrib import messages
 
 class CountryInline(admin.StackedInline):
     model = Country
@@ -134,7 +135,12 @@ class ContactAdmin(admin.ModelAdmin):
             if url == '':
                 return redirect("..")
 
-            r = requests.get(url)
+            try:
+                r = requests.get(url)
+            except:
+                messages.error(request, "неверная ссылка или сервер неотвечает")
+                return redirect("..")
+                
 
             for i in r.json():
 
