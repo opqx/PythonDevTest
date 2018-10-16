@@ -2,6 +2,12 @@
 
 {% block object-tools %}
 <div>
+  <form action="fromurl/" method="POST">
+    {% csrf_token %}
+    <button type="submit">импортировать по ссылке</button>
+    <input type="text" size="100" name="fromurl">
+  </form>
+
   <p>выберите файлы для импорта</p>  
   <form action="tocsv/" method="POST" enctype="multipart/form-data">
     {% csrf_token %}

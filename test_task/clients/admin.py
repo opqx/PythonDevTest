@@ -11,9 +11,10 @@ from django.urls import path
 from django.shortcuts import redirect
 
 from io import StringIO
-from clients.forms import ContactForm
+from clients.forms import ContactForm, CompaniesForm, CityForm, StreetForm
 import json
 
+import requests
 
 class CountryInline(admin.StackedInline):
     model = Country
@@ -94,6 +95,7 @@ class ContactAdmin(admin.ModelAdmin):
         my_urls = [
             path('tocsv/', self.tocsv),
             path('tojson/', self.tojson),
+            path('fromurl/', self.fromurl),
         ]
         return my_urls + urls
 
@@ -115,7 +117,6 @@ class ContactAdmin(admin.ModelAdmin):
         if request.method == "POST":
             json_file = request.FILES["tojson"].read()
             reader = json.loads(json_file)
-            # from pudb import set_trace; set_trace()
 
             for i in reader:
                 res = {'name': i['name'], 'email': i['email'], 'phone': i['phone'], 'interest': i['interest']}
@@ -124,6 +125,75 @@ class ContactAdmin(admin.ModelAdmin):
                     Contact.objects.get_or_create(name=i['name'], email=i['email'], phone=i['phone'], interest=i['interest'])
 
             self.message_user(request, "Файл json был импортирован")
+            return redirect("..")
+
+
+    def fromurl(self, request):
+        if request.method == "POST":
+            url = request.POST.get('fromurl')
+            if url == '':
+                return redirect("..")
+
+            r = requests.get(url)
+
+            for i in r.json():
+
+                company = {'company': i['company']['name']}
+                form = CompaniesForm(company)
+                if form.is_valid():
+                    id = Companies(company=i['company']['name'])
+                    id.save()
+                else:
+                    id = Companies.objects.get(company=i['company']['name'])
+
+                contact = {
+                    'name': i['name'],
+                    'email': i['email'],
+                    'phone': i['phone'],
+                    'interest': i['company']['bs']
+                }
+                form = ContactForm(contact)
+                if form.is_valid():
+                    contact_id = Contact.objects.get_or_create(
+                        company=id,
+                        name=i['name'],
+                        email=i['email'],
+                        phone=i['phone'],
+                        interest=i['company']['bs']
+                    )
+
+                city = {
+                    'name': i['address']['city'],
+                }
+                form = CityForm(city)
+                if form.is_valid():
+                    city_id = City(
+                        company=id,
+                        name=i['address']['city']
+                    )
+                    city_id.save()
+                else:
+                    try:
+                        city_id = City.objects.get(company=i['address']['city'])
+                    except:
+                        city_id = None
+
+                if city_id is not None:
+                    street = {
+                        'name': i['address']['street'],
+                    }
+                    form = StreetForm(street)
+                    if form.is_valid():
+                        street_id = Street.objects.get_or_create(
+                            company=id,
+                            city=city_id,
+                            name=i['address']['street']
+                        )
+                else:
+                    continue
+                
+
+            self.message_user(request, "данные по ссылке были импортированны")
             return redirect("..")
 
     
