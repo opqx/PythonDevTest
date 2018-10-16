@@ -12,6 +12,8 @@ from django.shortcuts import redirect
 
 from io import StringIO
 from clients.forms import ContactForm
+import json
+
 
 class CountryInline(admin.StackedInline):
     model = Country
@@ -110,13 +112,22 @@ class ContactAdmin(admin.ModelAdmin):
             return redirect("..")
 
     def tojson(self, request):
-        self.model.objects.all().update(is_immortal=False)
-        self.message_user(request, "All heroes are now mortal")
-        return HttpResponseRedirect("../")
+        if request.method == "POST":
+            json_file = request.FILES["tojson"].read()
+            reader = json.loads(json_file)
+            # from pudb import set_trace; set_trace()
+
+            for i in reader:
+                res = {'name': i['name'], 'email': i['email'], 'phone': i['phone'], 'interest': i['interest']}
+                form = ContactForm(res)
+                if form.is_valid():
+                    Contact.objects.get_or_create(name=i['name'], email=i['email'], phone=i['phone'], interest=i['interest'])
+
+            self.message_user(request, "Файл json был импортирован")
+            return redirect("..")
 
     
     def export_to_csv(self, request, queryset):
-        # from pudb import set_trace; set_trace()
         meta = self.model._meta
         field_names = [field.name for field in meta.fields][2:6]
 
